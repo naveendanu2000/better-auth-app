@@ -1,17 +1,37 @@
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 import uvicorn
+from src.controllers.authController import router as AuthRouter
+from src.connection.pool import create_pool, close_pool
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("Starting app!")
+    try:
+        await create_pool(app=app)
+    except Exception as e:
+        print(f"unable to connect to DB! {e}")
 
-    yield
-    print("Closing app!")
+    try:
+        yield
+        print("Closing app!")
+        try:
+            print("Disconnecting from DB!")
+            await close_pool(app=app)
+        except Exception as e:
+            print(f"Unable to disconnect from DB!{e}")
+    except Exception as e:
+        print(f"Unable to close app!{e}")
 
 
 app = FastAPI(lifespan=lifespan)
+
+app.include_router(AuthRouter)
 
 
 @app.get("/")
