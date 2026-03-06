@@ -1,8 +1,30 @@
 import asyncpg
-from src.schemas.SignupSchema import signupPayload
+from src.schemas.authDTO import signupPayload, signinPayload, signupResponseDTO
+from src.services.password_service import verifyPassword
+from fastapi.exceptions import HTTPException
+from asyncpg.exceptions import UniqueViolationError
 
 
-async def createUser(conn: asyncpg.Connection, payload: signupPayload):
+async def loginUser(
+    conn: asyncpg.Connection, payload: signinPayload
+) -> signupResponseDTO | None:
+
+    result = await conn.fetchrow(
+        "SELECT id, username, email, password FROM public.users where username=$1",
+        payload.username,
+    )
+
+    if not result:
+        verifyPassword(payload.password, None)
+        raise HTTPException(status_code=401, detail="username or password incorrect")
+
+    if verifyPassword(payload.password, result.password):
+        return signupResponseDTO(**dict(result))
+
+
+async def createUser(
+    conn: asyncpg.Connection, payload: signupPayload
+) -> signupResponseDTO | None:
     try:
         result = await conn.fetchrow(
             "INSERT INTO public.users(username, email, password) VALUES ($1, $2, $3) RETURNING id,username,email",
@@ -10,9 +32,8 @@ async def createUser(conn: asyncpg.Connection, payload: signupPayload):
             payload.email,
             payload.password,
         )
-        print(result)
-        if result:
-            return dict(result)
-    except Exception as e:
-        print(f"Unable to save the data! {e}")
-        raise e
+    except UniqueViolationError:
+        raise HTTPException(status_code=409, detail="User already exists!")
+
+    if result:
+        return signupResponseDTO(**dict(result))

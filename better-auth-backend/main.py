@@ -2,11 +2,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from contextlib import asynccontextmanager
 import uvicorn
 from src.controllers.authController import router as AuthRouter
 from src.connection.pool import create_pool, close_pool
+from src.responses.global_response_wrapper import global_exception_handler
 
 
 @asynccontextmanager
@@ -31,6 +32,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+
+app.add_exception_handler(HTTPException, global_exception_handler)
 
 app.include_router(AuthRouter)
 
