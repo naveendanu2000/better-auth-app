@@ -1,7 +1,7 @@
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from fastapi.exception_handlers import http_exception_handler
-from fastapi.exceptions import HTTPException
+from fastapi.exceptions import HTTPException, RequestValidationError
 from fastapi import Request
 from pydantic import BaseModel
 
@@ -13,7 +13,7 @@ class cookieSchema(BaseModel):
 
 def success_response(data: dict | None, message: str, cookie: cookieSchema | None):
     response = JSONResponse(
-        content={"sucesss": True, "data": jsonable_encoder(data), "message": message}
+        content={"success": True, "data": jsonable_encoder(data), "message": message}
     )
 
     if cookie:
@@ -36,6 +36,16 @@ async def global_exception_handler(request: Request, exc: Exception):
         return JSONResponse(
             status_code=response.status_code,
             content={"success": False, "message": exc.detail, "data": None},
+        )
+
+    if isinstance(exc, RequestValidationError):
+        return JSONResponse(
+            status_code=400,
+            content={
+                "success": False,
+                "message": "Bad request!",
+                "errors": exc.errors(),
+            },
         )
 
     return JSONResponse(status_code=500, content={"message": "Internal server error!"})
