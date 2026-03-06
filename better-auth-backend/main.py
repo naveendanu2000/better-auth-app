@@ -13,6 +13,7 @@ from src.connection.pool import create_pool, close_pool
 async def lifespan(app: FastAPI):
     print("Starting app!")
     try:
+        print("Connecting to DB!")
         await create_pool(app=app)
     except Exception as e:
         print(f"unable to connect to DB! {e}")
