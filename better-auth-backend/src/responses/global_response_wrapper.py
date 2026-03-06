@@ -1,4 +1,5 @@
 from fastapi.responses import JSONResponse
+from fastapi.encoders import jsonable_encoder
 from fastapi.exception_handlers import http_exception_handler
 from fastapi.exceptions import HTTPException
 from fastapi import Request
@@ -11,7 +12,9 @@ class cookieSchema(BaseModel):
 
 
 def success_response(data: dict | None, message: str, cookie: cookieSchema | None):
-    response = JSONResponse(content={"sucesss": True, "data": data, "message": message})
+    response = JSONResponse(
+        content={"sucesss": True, "data": jsonable_encoder(data), "message": message}
+    )
 
     if cookie:
         response.set_cookie(

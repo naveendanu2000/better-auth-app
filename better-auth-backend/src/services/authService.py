@@ -14,12 +14,16 @@ async def loginUser(
         payload.username,
     )
 
+    # print(result)
+
     if not result:
         verifyPassword(payload.password, None)
         raise HTTPException(status_code=401, detail="username or password incorrect")
 
-    if verifyPassword(payload.password, result.password):
+    if verifyPassword(payload.password, result["password"]):
         return signupResponseDTO(**dict(result))
+    else:
+        raise HTTPException(status_code=401, detail="username or password incorrect")
 
 
 async def createUser(

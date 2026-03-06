@@ -15,15 +15,16 @@ async def login(payload: signinPayload, request: Request):
 
     async with pool.acquire() as conn:
         user = await loginUser(conn=conn, payload=payload)
+        print(user)
         if user:
             jwt_token = create_access_token(id=user.id, expires_delta=None)
-
-        if jwt_token:
-            return success_response(
-                data=None,
-                message="Login successfull",
-                cookie=cookieSchema(key="access_token", value=jwt_token),
-            )
+            print("\nthis is the jwt token" + jwt_token)
+            if jwt_token:
+                return success_response(
+                    data=None,
+                    message="Login successfull",
+                    cookie=cookieSchema(key="access_token", value=jwt_token),
+                )
 
 
 @router.post("/api/auth/signup", response_model=signupResponseDTO)
@@ -34,4 +35,8 @@ async def signup(payload: signupPayload, request: Request):
     async with pool.acquire() as conn:
         payload.password = hashed_password
         user = await createUser(conn=conn, payload=payload)
-        return user
+        return success_response(
+            data=user.model_dump() if user else None,
+            message="Signup successfull",
+            cookie=None,
+        )
