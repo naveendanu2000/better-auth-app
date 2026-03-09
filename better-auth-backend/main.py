@@ -6,9 +6,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import uvicorn
+from starlette.middleware.sessions import SessionMiddleware
 from src.controllers.authController import router as AuthRouter
 from src.connection.pool import create_pool, close_pool
 from src.responses.register_exception_handler import register_exception_handlers
+import os
+
+
+SESSION_SECRET = os.getenv("SESSION_SECRET")
 
 
 @asynccontextmanager
@@ -36,6 +41,8 @@ app = FastAPI(lifespan=lifespan)
 
 register_exception_handlers(app=app)
 
+if SESSION_SECRET:
+    app.add_middleware(SessionMiddleware, secret_key=SESSION_SECRET)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],

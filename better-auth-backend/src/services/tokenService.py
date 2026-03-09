@@ -18,13 +18,17 @@ def create_access_token(id: int, expires_delta: timedelta | None):
 
     to_encode.update({"exp": int(expire.timestamp())})
 
-    return jwt.encode(payload=to_encode, key=JWT_SECRET, algorithm=ALGORITHM)
+    if JWT_SECRET:
+        return jwt.encode(payload=to_encode, key=JWT_SECRET, algorithm=ALGORITHM)
+    else:
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 def verify_access_token(token: str = Cookie()) -> dict:
 
     try:
-        payload = jwt.decode(token, key=JWT_SECRET, algorithms=ALGORITHM)
+        if JWT_SECRET:
+            payload = jwt.decode(token, key=JWT_SECRET, algorithms=ALGORITHM)
 
     except ExpiredSignatureError:
         raise HTTPException(

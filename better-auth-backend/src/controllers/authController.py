@@ -1,9 +1,16 @@
 from fastapi import APIRouter, Request
-from src.schemas.authDTO import signupResponseDTO, signupPayload, signinPayload
+from src.schemas.authDTO import (
+    signupResponseDTO,
+    signupPayload,
+    signinPayload,
+    googleUserRegisterPayload,
+)
 from src.services.password_service import hashPassword
-from src.services.authService import createUser, loginUser
+from src.services.authService import createUser, loginUser, googleUserRegister
 from src.services.tokenService import create_access_token
 from src.responses.global_response_wrapper import success_response, cookieSchema
+from authlib_config import oauth
+from datetime import timedelta
 
 router = APIRouter(prefix="/api/auth")
 
@@ -26,6 +33,44 @@ async def login(payload: signinPayload, request: Request):
                 )
 
 
+@router.get("/login/google")
+async def login_google(request: Request):
+
+    redirect_uri = request.url_for(
+        "login_google_callback"
+    )  # login_google_callback is the name of the function for the call_back URI
+
+    return await oauth.google.authorize_redirect(request, redirect_uri)
+
+
+@router.get("/login/google/callback")
+async def login_google_callback(request: Request):
+    token = await oauth.google.authorize_access_token(request)
+
+    user_info = token["userinfo"]
+    print(user_info)
+
+    jwt_token = create_access_token(user_info["email"], timedelta(minutes=15))
+
+    pool = request.app.state.pool
+
+    async with pool.acquire() as conn:
+        await googleUserRegister(
+            conn=conn,
+            payload=googleUserRegisterPayload(
+                username=user_info["name"],
+                email=user_info["email"],
+                provider_user_id=user_info["sub"],
+            ),
+        )
+
+    return success_response(
+        data={"email": user_info["email"], "name": user_info["name"]},
+        message="Login Successful",
+        cookie=cookieSchema(key="access_token", value=jwt_token),
+    )
+
+
 @router.post("/signup", response_model=signupResponseDTO)
 async def signup(payload: signupPayload, request: Request):
     hashed_password = hashPassword(payload.password)
@@ -36,6 +81,6 @@ async def signup(payload: signupPayload, request: Request):
         user = await createUser(conn=conn, payload=payload)
         return success_response(
             data=user.model_dump() if user else None,
-            message="Signup successfull",
+            message="Signup successful",
             cookie=None,
         )
