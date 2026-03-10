@@ -1,7 +1,36 @@
+import { Toaster } from "react-hot-toast";
+import LoginPage from "./pages/LoginPage";
+import { AuthProvider } from "./context/AuthProvider";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import ProtectedAuthRoute from "./components/ProtectedRoute";
+import UserDashboard from "./pages/UserDashboard";
+
 const App = () => {
-  return <div className="h-screen flex items-center justify-center">
-    
-  </div>;
+  return (
+    <div className="bg-red-200 **:transition-all **:duration-600 text-black h-screen flex items-center justify-center">
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<LoginPage />} />
+
+          <Route
+            element={
+              <AuthProvider>
+                <Route
+                  path="/user"
+                  element={
+                    <ProtectedAuthRoute>
+                      <UserDashboard />
+                    </ProtectedAuthRoute>
+                  }
+                />
+              </AuthProvider>
+            }
+          />
+        </Routes>
+      </BrowserRouter>
+      <Toaster />
+    </div>
+  );
 };
 
 export default App;
