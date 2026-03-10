@@ -17,13 +17,21 @@ from src.responses.global_response_wrapper import success_response, cookieSchema
 from authlib_config import oauth
 from datetime import timedelta
 from src.schemas.tokenDTO import tokenPayloadData
+import threading
 
 router = APIRouter(prefix="/api/auth")
+
+
+def printDone():
+    print("Done")
 
 
 @router.post("/login")
 async def login(payload: signinPayload, request: Request):
     pool = request.app.state.pool
+    t = threading.Timer(4, printDone)
+    t.start()
+    t.join()
 
     async with pool.acquire() as conn:
         user = await loginUser(conn=conn, payload=payload)
@@ -82,6 +90,10 @@ async def signup(payload: signupPayload, request: Request):
     hashed_password = hashPassword(payload.password)
     pool = request.app.state.pool
 
+    t = threading.Timer(4, printDone)
+    t.start()
+    t.join()
+
     async with pool.acquire() as conn:
         payload.password = hashed_password
         user = await createUser(conn=conn, payload=payload)
@@ -97,6 +109,10 @@ async def getCurrentUser(
     request: Request, user: tokenPayloadData = Depends(verify_access_token)
 ):
     pool = request.app.state.pool
+
+    t = threading.Timer(4, printDone)
+    t.start()
+    t.join()
 
     async with pool.acquire() as conn:
         userData = await getUserById(conn=conn, userid=user.id)
