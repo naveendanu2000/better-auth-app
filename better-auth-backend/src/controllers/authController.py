@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, Depends, HTTPException
 from src.schemas.authDTO import (
     signupResponseDTO,
     signupPayload,
@@ -6,11 +6,17 @@ from src.schemas.authDTO import (
     googleUserRegisterPayload,
 )
 from src.services.password_service import hashPassword
-from src.services.authService import createUser, loginUser, googleUserRegister
-from src.services.tokenService import create_access_token
+from src.services.authService import (
+    createUser,
+    loginUser,
+    googleUserRegister,
+    getUserById,
+)
+from src.services.tokenService import create_access_token, verify_access_token
 from src.responses.global_response_wrapper import success_response, cookieSchema
 from authlib_config import oauth
 from datetime import timedelta
+from src.schemas.tokenDTO import tokenPayloadData
 
 router = APIRouter(prefix="/api/auth")
 
@@ -82,5 +88,20 @@ async def signup(payload: signupPayload, request: Request):
         return success_response(
             data=user.model_dump() if user else None,
             message="Signup successful",
+            cookie=None,
+        )
+
+
+@router.get("/current/user")
+async def getCurrentUser(
+    request: Request, user: tokenPayloadData = Depends(verify_access_token)
+):
+    pool = request.app.state.pool
+
+    async with pool.acquire() as conn:
+        userData = await getUserById(conn=conn, userid=user.id)
+        return success_response(
+            data=userData,
+            message="User details fetched successfully",
             cookie=None,
         )

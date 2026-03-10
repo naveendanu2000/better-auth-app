@@ -3,6 +3,8 @@ from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
 from datetime import timedelta, datetime, timezone
 import os
 from fastapi import HTTPException, status, Cookie
+from src.schemas.tokenDTO import tokenPayloadData
+
 
 ALGORITHM = os.getenv("ALGORITHM")
 JWT_SECRET = os.getenv("JWT_SECRET")
@@ -24,11 +26,11 @@ def create_access_token(id: int, expires_delta: timedelta | None):
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
-def verify_access_token(token: str = Cookie()) -> dict:
+def verify_access_token(access_token: str = Cookie()) -> tokenPayloadData:
 
     try:
         if JWT_SECRET:
-            payload = jwt.decode(token, key=JWT_SECRET, algorithms=ALGORITHM)
+            payload = jwt.decode(access_token, key=JWT_SECRET, algorithms=ALGORITHM)
 
     except ExpiredSignatureError:
         raise HTTPException(
@@ -40,4 +42,4 @@ def verify_access_token(token: str = Cookie()) -> dict:
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Token"
         )
 
-    return payload
+    return tokenPayloadData(**payload)

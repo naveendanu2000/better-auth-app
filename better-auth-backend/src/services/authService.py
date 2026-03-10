@@ -7,7 +7,8 @@ from src.schemas.authDTO import (
 )
 from src.services.password_service import verifyPassword
 from fastapi.exceptions import HTTPException
-from asyncpg.exceptions import UniqueViolationError
+from asyncpg.exceptions import UniqueViolationError, NoDataFoundError
+from fastapi import status
 
 
 async def loginUser(
@@ -78,3 +79,20 @@ async def googleUserRegister(
             result_dict["id"],
             str(object=payload.provider_user_id),
         )
+
+
+async def getUserById(conn: asyncpg.Connection, userid: int) -> dict | None:
+    try:
+        result = await conn.fetchrow(
+            "SELECT id, username, email, created_at from public.users where id = $1",
+            userid,
+        )
+
+    except NoDataFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_204_NO_CONTENT, detail="No data found"
+        )
+
+    if result:
+        return dict(result)
+    return None
