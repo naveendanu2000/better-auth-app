@@ -23,6 +23,7 @@ def success_response(data: dict | None, message: str, cookie: cookieSchema | Non
             httponly=True,
             secure=False,
             samesite="lax",
+            path="/",
         )
 
     return response

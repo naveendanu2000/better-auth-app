@@ -2,7 +2,7 @@ import { Toaster } from "react-hot-toast";
 import LoginPage from "./pages/LoginPage";
 import { AuthProvider } from "./context/AuthProvider";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import ProtectedAuthRoute from "./components/ProtectedRoute";
+import ProtectedAuthRoute from "./components/ProtectedAuthRoute";
 import UserDashboard from "./pages/UserDashboard";
 
 const App = () => {
@@ -11,19 +11,14 @@ const App = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<LoginPage />} />
-
           <Route
+            path="/user"
             element={
-              <AuthProvider>
-                <Route
-                  path="/user"
-                  element={
-                    <ProtectedAuthRoute>
-                      <UserDashboard />
-                    </ProtectedAuthRoute>
-                  }
-                />
-              </AuthProvider>
+              <ProtectedAuthRoute>
+                <AuthProvider>
+                  <UserDashboard />
+                </AuthProvider>
+              </ProtectedAuthRoute>
             }
           />
         </Routes>

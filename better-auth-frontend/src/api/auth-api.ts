@@ -15,5 +15,13 @@ export const login = async (
 export const getUserDetails = async (): Promise<UserDetails> => {
   const result = await axiosInstance.get("/auth/current/user");
 
-  return result.data;
+  return result.data.data;
+};
+
+export const logout = async (): Promise<{ message: string } | undefined> => {
+  const result = await axiosInstance.get("/auth/logout");
+  if (result.data.message) return { message: "Logout successful" };
+
+  console.log(result);
+  return undefined;
 };

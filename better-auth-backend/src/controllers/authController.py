@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Depends, HTTPException
+from fastapi import APIRouter, Request, Response, Depends, HTTPException
 from src.schemas.authDTO import (
     signupResponseDTO,
     signupPayload,
@@ -29,7 +29,7 @@ def printDone():
 @router.post("/login")
 async def login(payload: signinPayload, request: Request):
     pool = request.app.state.pool
-    t = threading.Timer(4, printDone)
+    t = threading.Timer(2, printDone)
     t.start()
     t.join()
 
@@ -90,7 +90,7 @@ async def signup(payload: signupPayload, request: Request):
     hashed_password = hashPassword(payload.password)
     pool = request.app.state.pool
 
-    t = threading.Timer(4, printDone)
+    t = threading.Timer(2, printDone)
     t.start()
     t.join()
 
@@ -110,7 +110,7 @@ async def getCurrentUser(
 ):
     pool = request.app.state.pool
 
-    t = threading.Timer(4, printDone)
+    t = threading.Timer(2, printDone)
     t.start()
     t.join()
 
@@ -121,3 +121,14 @@ async def getCurrentUser(
             message="User details fetched successfully",
             cookie=None,
         )
+
+
+@router.get("/logout")
+def logout(response: Response, user: tokenPayloadData = Depends(verify_access_token)):
+    if user:
+
+        response = success_response(
+            data=None, message="User logged out successfully", cookie=None
+        )
+        response.delete_cookie(key="access_token", path="/")
+        return response

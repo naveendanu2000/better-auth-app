@@ -1,9 +1,10 @@
-import { useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import Input from "../components/small-components/Input";
-import { login } from "../api/auth-api";
+import { getUserDetails, login } from "../api/auth-api";
 import toast from "react-hot-toast";
 import { VscLoading } from "react-icons/vsc";
 import { useNavigate } from "react-router-dom";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 interface InitialState {
   success: boolean;
@@ -19,6 +20,29 @@ const initialState: InitialState = {
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const getCurrentUser = async () => {
+      setLoading(true);
+      try {
+        const response = await getUserDetails();
+
+        if (response) {
+          toast.success("Already logged in");
+          navigate("/user");
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getCurrentUser();
+
+    return () => setLoading(false);
+  }, [navigate]);
 
   const actionState = async (
     prevState: InitialState,
@@ -88,47 +112,53 @@ const LoginPage = () => {
   );
 
   return (
-    <div className="flex bg-white/20 backdrop-blur-xl flex-col shadow-md w-120 rounded h-fit p-15 items-center justify-center">
-      <h1 className="mb-8 text-2xl">LOGIN</h1>
+    <>
+      {loading ? (
+        <AiOutlineLoading3Quarters className="animate-spin" />
+      ) : (
+        <div className="flex bg-white/20 backdrop-blur-xl flex-col shadow-md w-120 rounded h-fit p-15 items-center justify-center">
+          <h1 className="mb-8 text-2xl">LOGIN</h1>
 
-      <div className="[&_input]:mb-5">
-        <form
-          action={formAction}
-          autoComplete="off"
-          className="flex flex-col items-center"
-        >
-          <Input
-            type="text"
-            id="username"
-            name="username"
-            placeholder="Username"
-            className={`${state.error.username.length > 0 ? "outline-2 outline-red-400" : "outline-2 outline-transparent"}`}
-            defaultValue={state.values.username}
-          />
-          <Input
-            type="password"
-            id="password"
-            name="password"
-            placeholder="Password"
-            className={`${state.error.password.length > 0 ? "outline-2 outline-red-400" : "outline-2 outline-transparent"}`}
-          />
-          <button
-            type="submit"
-            disabled={isPending}
-            className="rounded flex gap-2 px-4 py-2 shadow hover:shadow-xl active:shadow-lg cursor-pointer bg-white/50 backdrop-blur-3xl disabled:opacity-65 disabled:hover:shadow disabled:cursor-not-allowed hover:backdrop-blur-lg hover:bg-white/20"
-          >
-            {isPending ? (
-              <>
-                <VscLoading className="animate-spin text-2xl" /> Logging
-                in...{" "}
-              </>
-            ) : (
-              "Login"
-            )}
-          </button>
-        </form>
-      </div>
-    </div>
+          <div className="[&_input]:mb-5">
+            <form
+              action={formAction}
+              autoComplete="off"
+              className="flex flex-col items-center"
+            >
+              <Input
+                type="text"
+                id="username"
+                name="username"
+                placeholder="Username"
+                className={`${state.error.username.length > 0 ? "outline-2 outline-red-400" : "outline-2 outline-transparent"}`}
+                defaultValue={state.values.username}
+              />
+              <Input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Password"
+                className={`${state.error.password.length > 0 ? "outline-2 outline-red-400" : "outline-2 outline-transparent"}`}
+              />
+              <button
+                type="submit"
+                disabled={isPending}
+                className="rounded flex gap-2 px-4 py-2 shadow hover:shadow-xl active:shadow-lg cursor-pointer bg-white/50 backdrop-blur-3xl disabled:opacity-65 disabled:hover:shadow disabled:cursor-not-allowed hover:backdrop-blur-lg hover:bg-white/20"
+              >
+                {isPending ? (
+                  <>
+                    <VscLoading className="animate-spin text-2xl" /> Logging
+                    in...{" "}
+                  </>
+                ) : (
+                  "Login"
+                )}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 
