@@ -6,6 +6,7 @@ import { VscLoading } from "react-icons/vsc";
 import { useNavigate } from "react-router-dom";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { FaGoogle } from "react-icons/fa";
+import axios from "axios";
 
 interface InitialState {
   success: boolean;
@@ -56,7 +57,7 @@ const LoginPage = () => {
     if (!username?.toString().trim()) {
       error = {
         ...error,
-        username: "Username can not be blank!",
+        username: "Username can not be blank",
       };
     } else {
       error = {
@@ -95,7 +96,8 @@ const LoginPage = () => {
       };
     } catch (error) {
       console.log("Unable to login", error);
-      toast.error(`Unable to login! ${error}`);
+      if (axios.isAxiosError(error))
+        toast.error(`${error.response?.data.message}`);
       return {
         ...prevState,
         success: false,
@@ -117,54 +119,63 @@ const LoginPage = () => {
       {loading ? (
         <AiOutlineLoading3Quarters className="animate-spin" />
       ) : (
-        <div className="flex bg-white/20 backdrop-blur-xl flex-col shadow-md w-120 rounded h-fit p-15 items-center justify-center">
-          <h1 className="mb-8 text-2xl">LOGIN</h1>
+        <div className="group flex backdrop-blur-xl overflow-hidden bg-white/10 flex-col shadow-md w-130 rounded-2xl h-fit p-20 items-center justify-center">
+          <div className="z-10 flex flex-col items-center justify-center">
+            <h1 className="mb-12 text-3xl font-semibold">
+              OAuth Implementation
+            </h1>
 
-          <div className="[&_input]:mb-5 mb-5 pb-5 border-b border-b-gray-500">
-            <form
-              action={formAction}
-              autoComplete="off"
-              className="flex flex-col items-center"
-            >
-              <Input
-                type="text"
-                id="username"
-                name="username"
-                placeholder="Username"
-                className={`${state.error.username.length > 0 ? "outline-2 outline-red-400" : "outline-2 outline-transparent"}`}
-                defaultValue={state.values.username}
-              />
-              <Input
-                type="password"
-                id="password"
-                name="password"
-                placeholder="Password"
-                className={`${state.error.password.length > 0 ? "outline-2 outline-red-400" : "outline-2 outline-transparent"}`}
-              />
-              <button
-                type="submit"
-                disabled={isPending}
-                className="rounded flex gap-2 px-4 py-2 shadow hover:shadow-xl active:shadow-lg cursor-pointer bg-white/50 backdrop-blur-3xl disabled:opacity-65 disabled:hover:shadow disabled:cursor-not-allowed hover:backdrop-blur-lg hover:bg-white/20"
+            <div className="[&_input]:mb-5 mb-5 pb-5 border-b border-b-gray-500">
+              <form
+                action={formAction}
+                autoComplete="off"
+                className="flex flex-col items-center"
               >
-                {isPending ? (
-                  <>
-                    <VscLoading className="animate-spin text-2xl" /> Logging
-                    in...{" "}
-                  </>
-                ) : (
-                  "Login"
-                )}
-              </button>
-            </form>
+                <Input
+                  type="text"
+                  id="username"
+                  name="username"
+                  placeholder={`${state.error.username.length > 0 ? state.error.username : "Username"}`}
+                  className={`${state.error.username.length > 0 ? "outline-2 outline-red-400 text-red-500 focus:outline-transparent focus:text-black" : "outline-2 outline-transparent text-black"}`}
+                  defaultValue={state.values.username}
+                />
+                <Input
+                  type="password"
+                  id="password"
+                  name="password"
+                  placeholder={`${state.error.password.length > 0 ? state.error.password : "Password"}`}
+                  className={`${state.error.password.length > 0 ? "outline-2 outline-red-400 text-red-500 focus:outline-transparent focus:text-black" : "outline-2 outline-transparent text-black"}`}
+                />
+                <button
+                  type="submit"
+                  disabled={isPending}
+                  className=" font-semibold rounded flex gap-2 px-4 py-2 shadow hover:shadow-xl active:shadow-lg cursor-pointer bg-white/50 backdrop-blur-3xl disabled:opacity-65 disabled:hover:shadow disabled:cursor-not-allowed hover:backdrop-blur-lg hover:bg-white/20"
+                >
+                  {isPending ? (
+                    <>
+                      <VscLoading className="animate-spin text-2xl" /> Logging
+                      in...{" "}
+                    </>
+                  ) : (
+                    "Login"
+                  )}
+                </button>
+              </form>
+            </div>
+            <button
+              type="submit"
+              disabled={isPending}
+              onClick={() =>
+                (window.location.href =
+                  "http://localhost:8000/api/auth/login/google")
+              }
+              className=" font-semibold rounded flex gap-2 px-4 py-2 shadow hover:shadow-xl active:shadow-lg cursor-pointer bg-white/50 backdrop-blur-3xl disabled:opacity-65 disabled:hover:shadow disabled:cursor-not-allowed hover:backdrop-blur-lg hover:bg-white/20 items-center"
+            >
+              <FaGoogle className="text-xl me-2" /> Login with google
+            </button>
           </div>
-          <button
-            type="submit"
-            disabled={isPending}
-            onClick={() => window.location.href = "http://localhost:8000/api/auth/login/google"}
-            className="rounded flex gap-2 px-4 py-2 shadow hover:shadow-xl active:shadow-lg cursor-pointer bg-white/50 backdrop-blur-3xl disabled:opacity-65 disabled:hover:shadow disabled:cursor-not-allowed hover:backdrop-blur-lg hover:bg-white/20 items-center"
-          >
-           <FaGoogle className="text-xl me-2"/> Login with google
-          </button>
+
+          <div className="absolute backdrop-blur-sm z-0 h-300 w-300 bg-linear-to-br from-white/0 from-20% via-white/50 via-40% to-white/0 to-50% opacity-90 transition-opacity duration-400 group-hover:translate-50"></div>
         </div>
       )}
     </>

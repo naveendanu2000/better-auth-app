@@ -7,7 +7,7 @@ import UserDashboard from "./pages/UserDashboard";
 
 const App = () => {
   return (
-    <div className="bg-red-200 **:transition-all **:duration-600 text-black h-screen flex items-center justify-center">
+    <div className="bg-green-200 **:transition-all **:duration-600 text-black h-screen flex items-center justify-center">
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<LoginPage />} />
