@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Response, Depends, HTTPException
+from fastapi import APIRouter, Request, Response, Depends
 from src.schemas.authDTO import (
     signupResponseDTO,
     signupPayload,
@@ -18,6 +18,7 @@ from authlib_config import oauth
 from datetime import timedelta
 from src.schemas.tokenDTO import tokenPayloadData
 import threading
+from fastapi.responses import RedirectResponse
 
 router = APIRouter(prefix="/api/auth")
 
@@ -29,7 +30,7 @@ def printDone():
 @router.post("/login")
 async def login(payload: signinPayload, request: Request):
     pool = request.app.state.pool
-    t = threading.Timer(2, printDone)
+    t = threading.Timer(1, printDone)
     t.start()
     t.join()
 
@@ -58,18 +59,16 @@ async def login_google(request: Request):
 
 
 @router.get("/login/google/callback")
-async def login_google_callback(request: Request):
+async def login_google_callback(request: Request, response: Response):
     token = await oauth.google.authorize_access_token(request)
 
     user_info = token["userinfo"]
     print(user_info)
 
-    jwt_token = create_access_token(user_info["email"], timedelta(minutes=15))
-
     pool = request.app.state.pool
 
     async with pool.acquire() as conn:
-        await googleUserRegister(
+        user_id: int | None = await googleUserRegister(
             conn=conn,
             payload=googleUserRegisterPayload(
                 username=user_info["name"],
@@ -78,11 +77,29 @@ async def login_google_callback(request: Request):
             ),
         )
 
-    return success_response(
-        data={"email": user_info["email"], "name": user_info["name"]},
-        message="Login Successful",
-        cookie=cookieSchema(key="access_token", value=jwt_token),
-    )
+    if user_id:
+        jwt_token = create_access_token(user_id, timedelta(minutes=15))
+
+    response = RedirectResponse(url="http://localhost:5173/user", status_code=302)
+
+    if jwt_token:
+        response.set_cookie(
+            key="access_token",
+            value=jwt_token,
+            httponly=True,
+            secure=False,
+            samesite="lax",
+            path="/",
+            domain="localhost",
+        )
+    else:
+        return {
+            "success": False,
+            "data": None,
+            "message": "Unable to login internale server error",
+        }
+
+    return response
 
 
 @router.post("/signup", response_model=signupResponseDTO)
@@ -90,7 +107,7 @@ async def signup(payload: signupPayload, request: Request):
     hashed_password = hashPassword(payload.password)
     pool = request.app.state.pool
 
-    t = threading.Timer(2, printDone)
+    t = threading.Timer(1, printDone)
     t.start()
     t.join()
 
@@ -110,7 +127,7 @@ async def getCurrentUser(
 ):
     pool = request.app.state.pool
 
-    t = threading.Timer(2, printDone)
+    t = threading.Timer(1, printDone)
     t.start()
     t.join()
 
@@ -125,6 +142,9 @@ async def getCurrentUser(
 
 @router.get("/logout")
 def logout(response: Response, user: tokenPayloadData = Depends(verify_access_token)):
+    t = threading.Timer(1, printDone)
+    t.start()
+    t.join()
     if user:
 
         response = success_response(

@@ -45,7 +45,7 @@ const UserDashboard = () => {
             {loading ? (
               <>
                 <VscLoading className="animate-spin text-2xl" /> Logging
-                in...{" "}
+                out...{" "}
               </>
             ) : (
               "Logout"

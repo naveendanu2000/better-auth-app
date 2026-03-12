@@ -74,11 +74,14 @@ async def googleUserRegister(
     if result:
         result_dict = dict(result)
         # print(result_dict)
-        await conn.fetchrow(
-            "INSERT INTO public.user_ids(user_id, provider_user_id, provider) values($1, $2, 'Google')",
+        row = await conn.fetchrow(
+            "INSERT INTO public.user_ids(user_id, provider_user_id, provider) values($1, $2, 'Google') RETURNING user_id",
             result_dict["id"],
             str(object=payload.provider_user_id),
         )
+
+        if row:
+            return int(row["user_id"])
 
 
 async def getUserById(conn: asyncpg.Connection, userid: int) -> dict | None:

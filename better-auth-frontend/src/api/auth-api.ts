@@ -13,7 +13,9 @@ export const login = async (
 };
 
 export const getUserDetails = async (): Promise<UserDetails> => {
-  const result = await axiosInstance.get("/auth/current/user");
+  const result = await axiosInstance.get("/auth/current/user", {
+    withCredentials: true,
+  });
 
   return result.data.data;
 };

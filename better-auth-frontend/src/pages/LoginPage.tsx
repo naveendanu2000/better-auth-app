@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import { VscLoading } from "react-icons/vsc";
 import { useNavigate } from "react-router-dom";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { FaGoogle } from "react-icons/fa";
 
 interface InitialState {
   success: boolean;
@@ -119,7 +120,7 @@ const LoginPage = () => {
         <div className="flex bg-white/20 backdrop-blur-xl flex-col shadow-md w-120 rounded h-fit p-15 items-center justify-center">
           <h1 className="mb-8 text-2xl">LOGIN</h1>
 
-          <div className="[&_input]:mb-5">
+          <div className="[&_input]:mb-5 mb-5 pb-5 border-b border-b-gray-500">
             <form
               action={formAction}
               autoComplete="off"
@@ -156,6 +157,14 @@ const LoginPage = () => {
               </button>
             </form>
           </div>
+          <button
+            type="submit"
+            disabled={isPending}
+            onClick={() => window.location.href = "http://localhost:8000/api/auth/login/google"}
+            className="rounded flex gap-2 px-4 py-2 shadow hover:shadow-xl active:shadow-lg cursor-pointer bg-white/50 backdrop-blur-3xl disabled:opacity-65 disabled:hover:shadow disabled:cursor-not-allowed hover:backdrop-blur-lg hover:bg-white/20 items-center"
+          >
+           <FaGoogle className="text-xl me-2"/> Login with google
+          </button>
         </div>
       )}
     </>
