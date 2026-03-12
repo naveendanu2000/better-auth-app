@@ -2,11 +2,11 @@ import { useActionState, useEffect, useState } from "react";
 import Input from "../components/small-components/Input";
 import { getUserDetails, login } from "../api/auth-api";
 import toast from "react-hot-toast";
-import { VscLoading } from "react-icons/vsc";
 import { useNavigate } from "react-router-dom";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { FaGoogle } from "react-icons/fa";
 import axios from "axios";
+import Button from "../components/small-components/Button";
 
 interface InitialState {
   success: boolean;
@@ -148,33 +148,24 @@ const LoginPage = () => {
                   placeholder={`${state.error.password.length > 0 ? state.error.password : "Password"}`}
                   className={`${state.error.password.length > 0 ? "outline-2 outline-red-400 text-red-500 focus:outline-transparent focus:text-black" : "outline-2 outline-transparent text-black"}`}
                 />
-                <button
-                  type="submit"
+                <Button
                   disabled={isPending}
-                  className=" font-semibold rounded text-black flex gap-2 px-4 py-2 shadow hover:shadow-xl active:shadow-lg cursor-pointer bg-white/50 backdrop-blur-3xl disabled:opacity-65 disabled:hover:shadow disabled:cursor-not-allowed hover:backdrop-blur-lg hover:bg-white/20"
-                >
-                  {isPending ? (
-                    <>
-                      <VscLoading className="animate-spin text-2xl" /> Logging
-                      in...{" "}
-                    </>
-                  ) : (
-                    "Login"
-                  )}
-                </button>
+                  loading={isPending}
+                  loadingText="Logging in..."
+                  name="Login"
+                />
               </form>
             </div>
-            <button
-              type="submit"
+            <Button
               disabled={isPending}
+              type="button"
+              icon={<FaGoogle className="text-xl me-2" />}
+              name="Login with google"
               onClick={() =>
                 (window.location.href =
                   "http://localhost:8000/api/auth/login/google")
               }
-              className=" font-semibold rounded text-black flex gap-2 px-4 py-2 shadow hover:shadow-xl active:shadow-lg cursor-pointer bg-white/50 backdrop-blur-3xl disabled:opacity-65 disabled:hover:shadow disabled:cursor-not-allowed hover:backdrop-blur-lg hover:bg-white/20 items-center"
-            >
-              <FaGoogle className="text-xl me-2" /> Login with google
-            </button>
+            />
           </div>
 
           <div className="absolute backdrop-blur-sm z-0 h-250 w-250 bg-[linear-gradient(155deg,rgba(255,255,255,0)_0%,rgba(255,255,255,0.8)_40%,rgba(255,255,255,0)_80%)] opacity-60 transition-opacity duration-400 group-hover:translate-50"></div>
