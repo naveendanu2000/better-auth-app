@@ -114,12 +114,14 @@ const LoginPage = () => {
     initialState,
   );
 
+  // bg-[#3B3B3B]
+
   return (
     <>
       {loading ? (
-        <AiOutlineLoading3Quarters className="animate-spin" />
+        <AiOutlineLoading3Quarters className="animate-spin text-5xl text-white" />
       ) : (
-        <div className="group flex backdrop-blur-xl overflow-hidden bg-white/10 flex-col shadow-md w-130 rounded-2xl h-fit p-20 items-center justify-center">
+        <div className="group flex backdrop-blur-2xl bg-white/5 overflow-hidden flex-col shadow-xl hover:shadow-2xl focus-within:shadow-md w-130 rounded-2xl h-fit p-20 items-center justify-center">
           <div className="z-10 flex flex-col items-center justify-center">
             <h1 className="mb-12 text-3xl font-semibold">
               OAuth Implementation
@@ -149,7 +151,7 @@ const LoginPage = () => {
                 <button
                   type="submit"
                   disabled={isPending}
-                  className=" font-semibold rounded flex gap-2 px-4 py-2 shadow hover:shadow-xl active:shadow-lg cursor-pointer bg-white/50 backdrop-blur-3xl disabled:opacity-65 disabled:hover:shadow disabled:cursor-not-allowed hover:backdrop-blur-lg hover:bg-white/20"
+                  className=" font-semibold rounded text-black flex gap-2 px-4 py-2 shadow hover:shadow-xl active:shadow-lg cursor-pointer bg-white/50 backdrop-blur-3xl disabled:opacity-65 disabled:hover:shadow disabled:cursor-not-allowed hover:backdrop-blur-lg hover:bg-white/20"
                 >
                   {isPending ? (
                     <>
@@ -169,13 +171,13 @@ const LoginPage = () => {
                 (window.location.href =
                   "http://localhost:8000/api/auth/login/google")
               }
-              className=" font-semibold rounded flex gap-2 px-4 py-2 shadow hover:shadow-xl active:shadow-lg cursor-pointer bg-white/50 backdrop-blur-3xl disabled:opacity-65 disabled:hover:shadow disabled:cursor-not-allowed hover:backdrop-blur-lg hover:bg-white/20 items-center"
+              className=" font-semibold rounded text-black flex gap-2 px-4 py-2 shadow hover:shadow-xl active:shadow-lg cursor-pointer bg-white/50 backdrop-blur-3xl disabled:opacity-65 disabled:hover:shadow disabled:cursor-not-allowed hover:backdrop-blur-lg hover:bg-white/20 items-center"
             >
               <FaGoogle className="text-xl me-2" /> Login with google
             </button>
           </div>
 
-          <div className="absolute backdrop-blur-sm z-0 h-300 w-300 bg-linear-to-br from-white/0 from-20% via-white/50 via-40% to-white/0 to-50% opacity-90 transition-opacity duration-400 group-hover:translate-50"></div>
+          <div className="absolute backdrop-blur-sm z-0 h-250 w-250 bg-[linear-gradient(155deg,rgba(255,255,255,0)_0%,rgba(255,255,255,0.8)_40%,rgba(255,255,255,0)_80%)] opacity-60 transition-opacity duration-400 group-hover:translate-50"></div>
         </div>
       )}
     </>

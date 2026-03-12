@@ -32,15 +32,15 @@ const UserDashboard = () => {
   return (
     <>
       {!user ? (
-        <AiOutlineLoading3Quarters className="animate-spin" />
+        <AiOutlineLoading3Quarters className="animate-spin text-5xl text-white" />
       ) : (
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center text-white">
           <h1 className="text-xl">Welcome {user?.username}</h1>
           <button
             type="submit"
             disabled={loading}
             onClick={handleLogout}
-            className="rounded flex gap-2 px-4 py-2 shadow hover:shadow-xl active:shadow-lg cursor-pointer bg-white/50 backdrop-blur-3xl disabled:opacity-65 disabled:hover:shadow disabled:cursor-not-allowed hover:backdrop-blur-lg hover:bg-white/20"
+            className="rounded text-black flex gap-2 px-4 py-2 shadow hover:shadow-xl active:shadow-lg cursor-pointer bg-white/50 backdrop-blur-3xl disabled:opacity-65 disabled:hover:shadow disabled:cursor-not-allowed hover:backdrop-blur-lg hover:bg-white/20"
           >
             {loading ? (
               <>
